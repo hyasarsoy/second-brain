@@ -39,6 +39,16 @@ const EXPECTED_TOOLS = [
   "link",
   "unlink",
   "connections",
+  // Notes vault (src/mcp/notes-tools.ts)
+  "notes_tree",
+  "notes_search",
+  "note_read",
+  "note_write",
+  "note_append",
+  "note_edit",
+  "note_move",
+  "note_delete",
+  "note_daily",
 ];
 
 async function withMcpClient(env: Env, run: (client: Client) => Promise<void>) {
@@ -501,15 +511,16 @@ describe("tool definitions have a single source of truth", () => {
     });
   }
 
-  it("registers tools only in src/mcp/server.ts", () => {
+  it("registers tools only in src/mcp/server.ts (and the notes vault's own module)", () => {
     const registrars = walk(SRC)
       .filter((file) => readFileSync(file, "utf8").includes("registerTool("))
-      .map((file) => relative(SRC, file));
-    expect(registrars).toEqual(["mcp/server.ts"]);
+      .map((file) => relative(SRC, file))
+      .sort();
+    expect(registrars).toEqual(["mcp/notes-tools.ts", "mcp/server.ts"]);
   });
 
   it("registers each exposed tool exactly once", () => {
-    const source = readFileSync(join(SRC, "mcp/server.ts"), "utf8");
+    const source = readFileSync(join(SRC, "mcp/server.ts"), "utf8") + readFileSync(join(SRC, "mcp/notes-tools.ts"), "utf8");
     for (const name of EXPECTED_TOOLS) {
       const matches = source.match(new RegExp(`registerTool\\(\\s*"${name}"`, "g")) ?? [];
       expect(matches, name).toHaveLength(1);

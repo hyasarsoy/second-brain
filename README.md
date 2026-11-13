@@ -96,6 +96,22 @@ Search now finds the hard things: exact names, ticket numbers, versions, and phr
 | `connections` | List the memories connected to a memory |
 | `share` | Move a memory between the Personal and Shared layers |
 
+### Notes vault tools
+
+Long-form markdown documents in folders, next to the memories. The dashboard has a **Notlar** screen with a folder tree, editor and preview, `[[wikilinks]]`, clickable `- [ ]` tasks, version history, trash, Markdown/Notion ZIP import and ZIP export. The same notes are available over REST under `/notes/*` (see `src/routes/notes.ts`).
+
+| Tool | What it does |
+| --- | --- |
+| `notes_tree` | List folders and notes, or the most recently changed notes |
+| `notes_search` | Full-text search across notes, optionally inside one folder or tag |
+| `note_read` | Read a note by path or `[[title]]`, in parts when it is long |
+| `note_write` | Create a note or replace its whole content |
+| `note_append` | Add text to the end of a note or under a heading |
+| `note_edit` | Replace an exact piece of a note |
+| `note_move` | Rename or move a note or a folder |
+| `note_delete` | Move a note or a folder's notes to the trash |
+| `note_daily` | Read or add to today's daily note in `Günlük/` |
+
 A memory keeps the dates it was true for: recall with `as_of` answers what was actually true on a past date, and a fact that a newer one replaces is kept as history instead of being marked wrong.
 
 On a team brain, memory tools accept a `workspace` of `personal` or `company` when you want to choose a layer explicitly. `company` is the wire value for the Shared team layer. Without `workspace`, captures use the member and team defaults, while recall searches everything that person is allowed to see.

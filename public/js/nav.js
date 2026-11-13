@@ -95,6 +95,7 @@ function switchTab(tab) {
   // The registry is small and changes rarely, but a project created from an AI
   // tool while this window sat open is exactly what someone arriving here wants.
   // Pressing the tab you are already on is the way back out of a project.
+  if (tab === 'notes' && typeof loadNotes === 'function') loadNotes()
   if (tab === 'projects' && typeof loadProjects === 'function') {
     if (previousTab === 'projects' && typeof backToProjects === 'function') backToProjects()
     else loadProjects()
