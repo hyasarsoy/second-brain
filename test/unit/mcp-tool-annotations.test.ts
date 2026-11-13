@@ -9,8 +9,8 @@ const ctx = { waitUntil: (_: Promise<unknown>) => {} } as ExecutionContext;
 // Clients such as OpenDots run a tool without asking the user only when the server marks it
 // readOnlyHint; everything else lands behind an approval card. recall bumps recall_count on the
 // rows it shows, which is ranking telemetry, not a change the caller can observe, so it is read-only.
-const READ_TOOLS = ["list_teams", "list_projects", "brief", "digest", "history", "get_prompt_capsule", "recall", "list_recent", "get", "connections"];
-const WRITE_TOOLS = ["remember", "append", "update", "set_status", "share", "resolve", "forget", "undo", "link", "unlink"];
+const READ_TOOLS = ["list_teams", "list_projects", "brief", "digest", "history", "get_prompt_capsule", "recall", "list_recent", "get", "connections", "notes_tree", "notes_search", "note_read"];
+const WRITE_TOOLS = ["remember", "append", "update", "set_status", "share", "resolve", "forget", "undo", "link", "unlink", "note_write", "note_append", "note_edit", "note_move", "note_delete", "note_daily"];
 
 async function listTools() {
   const env = makeTestEnv(makeTestDb());

@@ -44,6 +44,7 @@ import { listTrash } from "../memory/trash-list";
 import { STORED_DATA_NOTICE, cleanStored } from "../lib/stored-data";
 import { resolveClientLabel, type McpClientExtra, type McpClientProps } from "./client-label";
 import { heldReason, holdReasonPhrase, isHeld, tooLongReplyText } from "../quarantine/tags";
+import { registerNoteTools } from "./notes-tools";
 import { contentByteLength, isOverContentLimit, tooLargeMcpMessage, MAX_CONTENT_BYTES } from "../lib/content-size";
 import {
   currentValidityAt, parseValidityDate, parseValidityInput, supersededBySql, supersedeReply, updateEntryValidity, updateValidityReply, validityReplySuffix, VALIDITY_WITH_CONTENT_ERROR,
@@ -1661,6 +1662,9 @@ export function buildMcpServer(
       return { content: [{ type: "text", text }] };
     }
   );
+
+  // ── notes vault (markdown files in folders) ─────────────────────────────
+  registerNoteTools(server, env, identity);
 
   return server;
 }

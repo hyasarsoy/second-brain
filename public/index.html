@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="css/projects.css" />
     <link rel="stylesheet" href="css/trash.css" />
     <link rel="stylesheet" href="css/ai-changes.css" />
+    <link rel="stylesheet" href="css/notes.css" />
   </head>
 
   <body>
@@ -68,6 +69,7 @@
           <button class="sb-tab active" id="sb-tab-home" onclick="switchTab('home')"><i class="ti ti-home"></i><span data-i18n="nav.home">Home</span></button>
           <button class="sb-tab" id="sb-tab-memories" onclick="switchTab('memories')"><i class="ti ti-stack-2"></i><span data-i18n="nav.memories">Memories</span></button>
           <button class="sb-tab" id="sb-tab-projects" onclick="switchTab('projects')"><i class="ti ti-folders"></i><span data-i18n="nav.projects">Projects</span></button>
+          <button class="sb-tab" id="sb-tab-notes" onclick="switchTab('notes')"><i class="ti ti-notebook"></i><span>Notlar</span></button>
           <!-- Hidden until GET /team/members answers 200 — see js/team.js. -->
           <button class="sb-tab" id="sb-tab-team" onclick="switchTab('team')" style="display: none"><i class="ti ti-users-group"></i><span data-i18n="nav.team">Team</span></button>
         </nav>
@@ -459,6 +461,82 @@
                appear only once GET /team/members has answered 200, which is
                both the admin check and the roster. A personal install never
                sees this screen exist. -->
+          <div class="screen" id="screen-notes">
+            <div class="notes-layout" id="notes-layout">
+              <aside class="notes-side" aria-label="Not klasörleri">
+                <div class="notes-side-head">
+                  <div class="notes-search-wrap">
+                    <i class="ti ti-search"></i>
+                    <input type="search" id="notes-search" placeholder="Notlarda ara (#etiket de olur)" autocomplete="off" />
+                  </div>
+                  <div class="notes-side-actions">
+                    <button type="button" class="notes-icon-btn" onclick="notesNewNote()" title="Yeni not"><i class="ti ti-file-plus"></i></button>
+                    <button type="button" class="notes-icon-btn" onclick="notesNewFolder()" title="Yeni klasör"><i class="ti ti-folder-plus"></i></button>
+                    <button type="button" class="notes-icon-btn" onclick="notesOpenDaily()" title="Bugünün günlüğü"><i class="ti ti-calendar-event"></i></button>
+                    <button type="button" class="notes-icon-btn" onclick="notesToggleMenu(event)" title="Diğer" aria-haspopup="menu"><i class="ti ti-dots"></i></button>
+                    <div class="notes-menu" id="notes-menu" role="menu" hidden>
+                      <button type="button" role="menuitem" onclick="notesPickImport('files')"><i class="ti ti-file-upload"></i> Markdown dosyası içe aktar</button>
+                      <button type="button" role="menuitem" onclick="notesPickImport('folder')"><i class="ti ti-folder-up"></i> Klasör içe aktar</button>
+                      <button type="button" role="menuitem" onclick="notesPickImport('zip')"><i class="ti ti-file-zip"></i> Notion / ZIP içe aktar</button>
+                      <button type="button" role="menuitem" onclick="notesExportZip()"><i class="ti ti-download"></i> Tümünü ZIP olarak indir</button>
+                      <button type="button" role="menuitem" onclick="notesOpenTrash()"><i class="ti ti-trash"></i> Çöp kutusu</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="notes-tree" id="notes-tree" role="tree"></div>
+                <input type="file" id="notes-import-files" accept=".md,.markdown,.txt,text/markdown,text/plain" multiple hidden />
+                <input type="file" id="notes-import-folder" webkitdirectory multiple hidden />
+                <input type="file" id="notes-import-zip" accept=".zip,application/zip" hidden />
+              </aside>
+              <section class="notes-main">
+                <div class="notes-welcome" id="notes-welcome">
+                  <i class="ti ti-notebook"></i>
+                  <h3>Notlar</h3>
+                  <p>Markdown notlarını klasörler halinde tut. Notlar arasında <code>[[Not adı]]</code> ile bağlantı kur, yapılacakları <code>- [ ]</code> ile yaz. AI araçların da aynı notları okuyup düzenleyebilir.</p>
+                  <div class="notes-welcome-actions">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="notesNewNote()"><i class="ti ti-file-plus"></i> Yeni not</button>
+                    <button type="button" class="btn btn-sm" onclick="notesOpenDaily()"><i class="ti ti-calendar-event"></i> Bugünün günlüğü</button>
+                    <button type="button" class="btn btn-sm" onclick="notesPickImport('zip')"><i class="ti ti-file-zip"></i> Notion'dan aktar</button>
+                  </div>
+                  <div class="notes-recent" id="notes-recent"></div>
+                </div>
+                <div class="notes-doc" id="notes-doc" hidden>
+                  <div class="notes-doc-bar">
+                    <button type="button" class="notes-icon-btn notes-back" onclick="notesCloseDoc()" title="Klasörler"><i class="ti ti-arrow-left"></i></button>
+                    <div class="notes-crumbs" id="notes-crumbs"></div>
+                    <span class="notes-save-state" id="notes-save-state"></span>
+                    <div class="notes-mode" role="tablist" aria-label="Görünüm">
+                      <button type="button" data-mode="edit" onclick="notesSetMode('edit')" title="Düzenle (Ctrl+E)"><i class="ti ti-pencil"></i></button>
+                      <button type="button" data-mode="split" onclick="notesSetMode('split')" title="Yan yana"><i class="ti ti-layout-columns"></i></button>
+                      <button type="button" data-mode="preview" onclick="notesSetMode('preview')" title="Önizle (Ctrl+E)"><i class="ti ti-eye"></i></button>
+                    </div>
+                    <button type="button" class="notes-icon-btn" id="notes-pin-btn" onclick="notesTogglePin()" title="Sabitle"><i class="ti ti-pin"></i></button>
+                    <button type="button" class="notes-icon-btn" onclick="notesOpenHistory()" title="Sürüm geçmişi"><i class="ti ti-history"></i></button>
+                    <button type="button" class="notes-icon-btn" onclick="notesMoveCurrent()" title="Taşı / yeniden adlandır"><i class="ti ti-arrows-move"></i></button>
+                    <button type="button" class="notes-icon-btn" onclick="notesDeleteCurrent()" title="Çöpe at"><i class="ti ti-trash"></i></button>
+                  </div>
+                  <div class="notes-conflict" id="notes-conflict" hidden>
+                    <span>Bu not başka bir yerden (ör. AI aracı) değişti.</span>
+                    <button type="button" class="btn btn-sm" onclick="notesConflictReload()">Sunucudakini yükle</button>
+                    <button type="button" class="btn btn-sm" onclick="notesConflictOverwrite()">Benimkini kaydet</button>
+                  </div>
+                  <div class="notes-doc-body mode-split" id="notes-doc-body">
+                    <textarea id="notes-editor" spellcheck="true" placeholder="# Başlık&#10;&#10;Yazmaya başla…"></textarea>
+                    <div class="notes-preview md-body" id="notes-preview"></div>
+                  </div>
+                  <div class="notes-links" id="notes-links"></div>
+                </div>
+              </section>
+            </div>
+            <div class="notes-dialog" id="notes-dialog" hidden>
+              <div class="notes-dialog-card" role="dialog" aria-modal="true" aria-labelledby="notes-dialog-title">
+                <h3 id="notes-dialog-title"></h3>
+                <div id="notes-dialog-body"></div>
+                <div class="notes-dialog-actions" id="notes-dialog-actions"></div>
+              </div>
+            </div>
+          </div>
+
           <div class="screen" id="screen-team">
             <div class="mem-bar team-page-bar">
               <h2 data-i18n="team.title">Team</h2>
@@ -626,6 +704,7 @@
           <button class="nav-tab active" id="tab-home" onclick="switchTab('home')"><i class="ti ti-home"></i><span data-i18n="nav.home">Home</span></button>
           <button class="nav-tab" id="tab-memories" onclick="switchTab('memories')"><i class="ti ti-stack-2"></i><span data-i18n="nav.memories">Memories</span></button>
           <button class="nav-tab" id="tab-projects" onclick="switchTab('projects')"><i class="ti ti-folders"></i><span data-i18n="nav.projects">Projects</span></button>
+          <button class="nav-tab" id="tab-notes" onclick="switchTab('notes')"><i class="ti ti-notebook"></i><span>Notlar</span></button>
           <button class="nav-tab" id="tab-team" onclick="switchTab('team')" style="display: none"><i class="ti ti-users-group"></i><span data-i18n="nav.team">Team</span></button>
         </div>
       </div>
@@ -1067,6 +1146,7 @@
     <script src="js/team.js"></script>
     <script src="js/activity.js"></script>
     <script src="js/projects.js"></script>
+    <script src="js/notes.js"></script>
     <script src="js/graph-canvas.js"></script>
     <script src="js/brief.js"></script>
     <script src="js/board.js"></script>

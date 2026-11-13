@@ -46,7 +46,8 @@ async function toolsListBytes(): Promise<number> {
   }
 }
 
-const PINNED_MAX_BYTES = 33000;
+// Notes vault fork: nine note_* / notes_* tools add ~5.9 KB (38,821 bytes measured).
+const PINNED_MAX_BYTES = 40000;
 
 describe("tools/list size", () => {
   it("stays within the pinned byte ceiling", async () => {
