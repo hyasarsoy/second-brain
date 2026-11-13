@@ -9,7 +9,10 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "second-brain-db"
+			"database_name": "second-brain-db",
+			// Pinned to the existing production database so a deploy from this fork
+			// (Workers Builds or a local `wrangler deploy`) never provisions a new one.
+			"database_id": "bb118404-b5a6-4c03-98a2-cb0f64ea06cc"
 		}
 	],
 	"vectorize": [
@@ -23,9 +26,12 @@
 	},
 	"kv_namespaces": [
 		{
-			"binding": "OAUTH_KV"
+			"binding": "OAUTH_KV",
+			"id": "1c43b0b4c7274edd95262f484199ef4c"
 		}
 	],
+	// Keep variables set in the Cloudflare dashboard (installer settings) on deploy.
+	"keep_vars": true,
 	"vars": {
 		"VECTORIZE_GRACE_MS": "300000"
 	},
